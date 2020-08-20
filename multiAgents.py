@@ -113,19 +113,22 @@ class MinimaxAgent(MultiAgentSearchAgent):
       min_scores = []
       index = ghosts[0]
       next_g_moves = currGameState.getLegalActions(index)
-      # Movement when ghost doesn't move (empty list)
+      # Wanneer er een of meerdere ghosts niet kunnen bewegen, moet pacman toch een evaluatie terugkrijgen
       if len(next_g_moves) == 0:
           if len(ghosts) == 1:
             return self.evaluationFunction(currGameState)
           else:
+            # Alle mogelijke leaf nodes van de zoektree moeten gevonden worden
             return self.recurrentMiniMaxCalc(ghosts[1:], currGameState)
       else:
+        # Alle mogelijke leaf nodes van de zoektree moeten gevonden worden
         for last_g_move in next_g_moves:
           last_state = currGameState.generateSuccessor(index, last_g_move)
           if len(ghosts) == 1:
               min_scores.append(self.evaluationFunction(last_state))
           else:
               min_scores.append(self.recurrentMiniMaxCalc(ghosts[1:], last_state))
+        # min waarde halen uit alle mogelijke staat waarden teruggekregen voor elke ghost.
         min_score = min(min_scores)
         return min_score
   def getAction(self, currGameState):
@@ -155,7 +158,7 @@ class MinimaxAgent(MultiAgentSearchAgent):
     pacman_moves = currGameState.getLegalActions(0)
     next_move = Directions.STOP
     # Alle ghosts indexen hebben (PacMan is steeds 0, de ghosts in increasing order vanaf 1
-    ghosts = [iter + 1 for iter in range(3)]
+    ghosts = [iter + 1 for iter in range(currGameState.getNumAgents() - 1)]
     # Recurrent function
     for pacman_move in pacman_moves:
         # voor alle mogelijke moves van PacMan het maximum ondergaan, door eerst min staat van de ghosts te gaan berekenen
@@ -195,11 +198,9 @@ class ExpectimaxAgent(MultiAgentSearchAgent):
       index = ghosts[0]
       next_g_moves = currGameState.getLegalActions(index)
       if len(next_g_moves) == 0:
-          # checken of dit niet de laatste staat mogelijk is
           if len(ghosts) == 1:
               return self.evaluationFunction(currGameState)
           else:
-              # Returnt naar de volgende staten
               return self.recurrentExpectimaxCalc(ghosts[1:], currGameState)
       else:
           # Alle staten nagaan van alle mogelijke moves van de ghosts
@@ -208,7 +209,7 @@ class ExpectimaxAgent(MultiAgentSearchAgent):
               if len(ghosts) == 1:
                   min_scores.append(self.evaluationFunction(last_state))
               else:
-                  min_scores.append(self.recurrentExpectimaxCalc(ghosts[1:], last_state))   
+                  min_scores.append(self.recurrentExpectimaxCalc(ghosts[1:], last_state))
           min_score = sum(min_scores)/len(min_scores)
           return min_score
   def getAction(self, currGameState):
@@ -227,12 +228,12 @@ class ExpectimaxAgent(MultiAgentSearchAgent):
     ghosts = [iter + 1 for iter in range(currGameState.getNumAgents() - 1)]
     # voor alle mogelijke moves van PacMan  het minimum ondergaan
     for pacman_move in pacman_moves:
-        # volgende staat volgens pacmans beweging
+        # volgende mogelijke staat volgens pacmans beweging
         next_state = currGameState.generateSuccessor(0, pacman_move)
         # positie van de ghosts moet random zijn
         random.shuffle(ghosts)
         # met behulp van recurrent functie de expectimax tree ondergaan, max waarde hiervan terugkrijgen
-        # deze is de minimax waarde van de mogelijke PacMan moves.
+        # deze is de expectimax waarde van de mogelijke PacMan moves.
         max_scores.append(self.recurrentExpectimaxCalc(ghosts, next_state))
     # Max PacMan movement terugkrijgen van de gevonden minimum waarden
     max_move = max(max_scores)
