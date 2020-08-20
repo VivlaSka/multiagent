@@ -645,7 +645,12 @@ def runGames( layout, pacman, ghosts, display, numGames, record, numTraining = 0
     print 'Scores:       ', ', '.join([str(score) for score in scores])
     print 'Win Rate:      %d/%d (%.2f)' % (wins.count(True), len(wins), winRate)
     print 'Record:       ', ', '.join([ ['Loss', 'Win'][int(w)] for w in wins])
-
+    file = open("results.csv", "w")
+    file.write("Average Score; Win Rate\n (%.2f); (%.2f)\n" % (sum(scores) / float(len(scores)), winRate))
+    file.write("Scores; Record")
+    for i in range(len(scores)):
+        file.write("\n %s; %s" % (str(scores[i]), ['Loss', 'Win'][int(wins[i])]))
+    file.close()
   return games
 
 if __name__ == '__main__':
